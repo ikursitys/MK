@@ -23,15 +23,15 @@ const player2 = {
 const $arenas = document.querySelector("div.arenas");
 const $randomButton = document.querySelector(".button");
 
-const createElement = (tag, className) => {
+function createElement(tag, className) {
   const $tag = document.createElement(tag);
   if (className) {
     $tag.classList.add(className);
   }
   return $tag;
-};
+}
 
-const createPlayer = (object) => {
+function createPlayer(object) {
   const $player = createElement("div", "player" + object.player);
   const $progressBar = createElement("div", "progressbar");
   const $character = createElement("div", "character");
@@ -48,18 +48,24 @@ const createPlayer = (object) => {
   $progressBar.appendChild($name);
   $character.appendChild($img);
 
+  $img.id = "player" + object.player + "img";
   $img.src = object.img;
+
   return $player;
-};
+}
 
 $arenas.appendChild(createPlayer(player1));
 $arenas.appendChild(createPlayer(player2));
 
-const changeHP = (player) => {
+function randomHP(number) {
+  return Math.ceil(Math.random() * number);
+}
+
+function changeHP(player) {
   const $playerLife = document.querySelector(
     ".player" + player.player + " .life"
   );
-  player.hp -= Math.ceil(Math.random() * 20);
+  player.hp -= randomHP(20);
   console.log(player.hp);
 
   if (player.hp <= 0) {
@@ -71,19 +77,28 @@ const changeHP = (player) => {
   if (player1.hp <= 0) {
     $arenas.appendChild(playerWins(player2.name));
     $randomButton.disabled = true;
-  }
-
-  if (player2.hp <= 0) {
+    document.getElementById("player2img").src =
+      "https://www.mortalkombatwarehouse.com/umk3/animations/kitana-win.gif";
+  } else if (player2.hp <= 0) {
     $arenas.appendChild(playerWins(player1.name));
     $randomButton.disabled = true;
+    document.getElementById("player1img").src =
+      "https://www.mortalkombatwarehouse.com/umk3/animations/scorpion-win.gif";
+  } else if (player1.hp == 0 && player2.hp == 0) {
   }
-};
+}
 
-const playerWins = (name) => {
+function playerWins(name) {
   const $winTitle = createElement("div", "loseTitle");
   $winTitle.innerText = name + " wins!";
   return $winTitle;
-};
+}
+
+function nobodyWins() {
+  const $nobodyWinsTitle = createElement("div", "loseTitle");
+  $nobodyWinsTitle.innerText = "Nobody wins!";
+  return $nobodyWinsTitle;
+}
 
 $randomButton.addEventListener("click", function () {
   changeHP(player1);
