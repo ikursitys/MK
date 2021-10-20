@@ -7,6 +7,9 @@ const player1 = {
   attack: function () {
     console.log(this.name + " Fight...");
   },
+  changeHP: changeHP,
+  renderHP: renderHP,
+  elHP: elHP,
 };
 
 const player2 = {
@@ -18,6 +21,9 @@ const player2 = {
   attack: function () {
     console.log(this.name + " Fight...");
   },
+  changeHP: changeHP,
+  renderHP: renderHP,
+  elHP: elHP,
 };
 
 const $arenas = document.querySelector("div.arenas");
@@ -57,50 +63,68 @@ function createPlayer(object) {
 $arenas.appendChild(createPlayer(player1));
 $arenas.appendChild(createPlayer(player2));
 
-function randomHP(number) {
+function getRandom(number) {
   return Math.ceil(Math.random() * number);
 }
 
-function changeHP(player) {
+function changeHP(number) {
+  if (this.hp > 0) {
+    this.hp -= number;
+  } else if (this.hp <= 0) {
+    this.hp = 0;
+  }
+}
+
+function elHP() {
   const $playerLife = document.querySelector(
-    ".player" + player.player + " .life"
+    ".player" + this.player + " .life"
   );
-  player.hp -= randomHP(20);
-  console.log(player.hp);
+  return $playerLife;
+}
 
-  if (player.hp <= 0) {
-    $playerLife.style.width = 0 + "%";
-  } else {
-    $playerLife.style.width = player.hp + "%";
-  }
-
-  if (player1.hp <= 0) {
-    $arenas.appendChild(playerWins(player2.name));
-    $randomButton.disabled = true;
-    document.getElementById("player2img").src =
-      "https://www.mortalkombatwarehouse.com/umk3/animations/kitana-win.gif";
-  } else if (player2.hp <= 0) {
-    $arenas.appendChild(playerWins(player1.name));
-    $randomButton.disabled = true;
-    document.getElementById("player1img").src =
-      "https://www.mortalkombatwarehouse.com/umk3/animations/scorpion-win.gif";
-  } else if (player1.hp == 0 && player2.hp == 0) {
-  }
+function renderHP() {
+  this.elHP().style.width = this.hp + "%";
 }
 
 function playerWins(name) {
   const $winTitle = createElement("div", "loseTitle");
-  $winTitle.innerText = name + " wins!";
+  if (name) {
+    $winTitle.innerText = name + " wins!";
+  } else $winTitle.innerText = "Draw";
   return $winTitle;
 }
 
-function nobodyWins() {
-  const $nobodyWinsTitle = createElement("div", "loseTitle");
-  $nobodyWinsTitle.innerText = "Nobody wins!";
-  return $nobodyWinsTitle;
-}
-
 $randomButton.addEventListener("click", function () {
-  changeHP(player1);
-  changeHP(player2);
+  player1.changeHP(getRandom(20));
+  player1.renderHP();
+  player2.changeHP(getRandom(20));
+  player2.renderHP();
+
+  if (player1.hp === 0 || player2.hp === 0) {
+    $randomButton.disabled = true;
+    createReloadButton();
+  }
+  if (player1.hp === 0 && player1.hp < player2.hp) {
+    $arenas.appendChild(playerWins(player2.name));
+    document.getElementById("player2img").src =
+      "https://www.mortalkombatwarehouse.com/umk3/animations/kitana-win.gif";
+  } else if (player2.hp === 0 && player2.hp < player1.hp) {
+    $arenas.appendChild(playerWins(player1.name));
+    document.getElementById("player1img").src =
+      "https://www.mortalkombatwarehouse.com/umk3/animations/scorpion-win.gif";
+  } else if (player1.hp === 0 && player2.hp === 0) {
+    $arenas.appendChild(playerWins());
+  }
 });
+
+function createReloadButton() {
+  const $reloadWrap = createElement("div", "reloadWrap");
+  const $reloadButton = createElement("button", "button");
+  $reloadButton.innerText = "restart";
+  $reloadWrap.appendChild($reloadButton);
+  $arenas.appendChild($reloadWrap);
+  console.log($reloadButton);
+  $reloadButton.addEventListener("click", function () {
+    window.location.reload();
+  });
+}
