@@ -201,11 +201,14 @@ function playerAttack() {
   return attack;
 }
 
+const normalizeTime = (num) => (num.toString().length > 1 ? num : `0${num}`);
 // Генерируем логи
 
 function generateLogs(type, player1, player2, value) {
   const date = new Date();
-  const time = `${date.getHours()}:${date.getMinutes()}`;
+  const time = `${normalizeTime(date.getHours())}:${normalizeTime(
+    date.getMinutes()
+  )}`;
   let text;
   let log;
 
