@@ -276,7 +276,7 @@ function fight(player, enemy) {
   if (enemy.hit != player.defence) {
     player1.changeHP(player.value);
     player1.renderHP();
-    generateLogs("hit", player2, player1, player.value);
+    generateLogs("hit", player2, player1, enemy.value);
   } else if (enemy.hit === player.defence) {
     generateLogs("defence", player2, player1);
   }
