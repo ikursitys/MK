@@ -1,45 +1,44 @@
 import { player1, player2 } from "./player.js";
-import { Log } from "./logs.js";
+import { generateLogs } from "./generate-logs.js";
 import { getRandom, createReloadButton, createElement } from "./utils.js";
 
+const $arenas = document.querySelector("div.arenas");
+const $formFight = document.querySelector(".control");
+const ATTACK = ["head", "body", "foot"];
+const attack = {};
+const HIT = {
+  head: 30,
+  body: 25,
+  foot: 20,
+};
+
 class Game {
-  constructor() {
-    this.$arenas = document.querySelector("div.arenas");
-    this.$formFight = document.querySelector(".control");
-    this.ATTACK = ["head", "body", "foot"];
-    this.attack = {};
-    this.HIT = {
-      head: 30,
-      body: 25,
-      foot: 20,
-    };
-  }
   enemyAttack = () => {
-    const hit = this.ATTACK[getRandom(3) - 1];
-    const defence = this.ATTACK[getRandom(3) - 1];
+    const hit = ATTACK[getRandom(3) - 1];
+    const defence = ATTACK[getRandom(3) - 1];
 
     return {
-      value: getRandom(this.HIT[hit]),
+      value: getRandom(HIT[hit]),
       hit,
       defence,
     };
   };
 
   playerAttack = () => {
-    for (let item of this.$formFight) {
+    for (let item of $formFight) {
       if (item.checked && item.name === "hit") {
-        this.attack.value = getRandom(this.HIT[item.value]);
-        this.attack.hit = item.value;
+        attack.value = getRandom(HIT[item.value]);
+        attack.hit = item.value;
       }
 
       if (item.checked && item.name === "defence") {
-        this.attack.defence = item.value;
+        attack.defence = item.value;
       }
 
       item.checked = false;
     }
 
-    return this.attack;
+    return attack;
   };
 
   fight = (player1, player2) => {
@@ -49,36 +48,36 @@ class Game {
     if (player.hit != enemy.defence) {
       player2.changeHP(player.value);
       player2.renderHP();
-      Log.generateLogs("hit", player1, player2, player.value);
+      generateLogs("hit", player1, player2, player.value);
     } else if (player.hit === enemy.defence) {
-      Log.generateLogs("defence", player1, player2);
+      generateLogs("defence", player1, player2);
     }
 
     if (enemy.hit != player.defence) {
       player1.changeHP(player.value);
       player1.renderHP();
-      Log.generateLogs("hit", player2, player1, enemy.value);
+      generateLogs("hit", player2, player1, enemy.value);
     } else if (enemy.hit === player.defence) {
-      Log.generateLogs("defence", player2, player1);
+      generateLogs("defence", player2, player1);
     }
   };
 
   checkWinner = () => {
     if (player1.hp === 0 || player2.hp === 0) {
       createReloadButton();
-      this.$formFight.style.display = "none";
+      $formFight.style.display = "none";
     }
     if (player1.hp === 0 && player1.hp < player2.hp) {
-      this.$arenas.appendChild(this.playerWins(player2.name));
-      Log.generateLogs("end", player2, player1);
+      $arenas.appendChild(this.playerWins(player2.name));
+      generateLogs("end", player2, player1);
       document.getElementById("player2img").src = "./assets/kitana-win.gif";
     } else if (player2.hp === 0 && player2.hp < player1.hp) {
-      this.$arenas.appendChild(this.playerWins(player1.name));
-      Log.generateLogs("end", player1, player2);
+      $arenas.appendChild(this.playerWins(player1.name));
+      generateLogs("end", player1, player2);
       document.getElementById("player1img").src = "./assets/scorpion-win.gif";
     } else if (player1.hp === 0 && player2.hp === 0) {
-      this.$arenas.appendChild(this.playerWins());
-      Log.generateLogs("draw");
+      $arenas.appendChild(this.playerWins());
+      generateLogs("draw");
     }
   };
 
@@ -91,10 +90,10 @@ class Game {
   };
 
   start = () => {
-    this.$arenas.appendChild(player1.create());
-    this.$arenas.appendChild(player2.create());
-    Log.generateLogs("start", player1, player2);
-    this.$formFight.addEventListener("submit", (e) => {
+    $arenas.appendChild(player1.create());
+    $arenas.appendChild(player2.create());
+    generateLogs("start", player1, player2);
+    $formFight.addEventListener("submit", (e) => {
       e.preventDefault();
       this.fight(player1, player2);
       this.checkWinner();
