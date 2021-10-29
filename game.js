@@ -1,10 +1,10 @@
-import { player1, player2 } from "./player.js";
+import { Player } from "./player.js";
 import { generateLogs } from "./generate-logs.js";
 import { getRandom, createReloadButton, createElement } from "./utils.js";
 
 const $arenas = document.querySelector("div.arenas");
 const $formFight = document.querySelector(".control");
-const ATTACK = ["head", "body", "foot"];
+//const ATTACK = ["head", "body", "foot"];
 const attack = {};
 const HIT = {
   head: 30,
@@ -12,18 +12,10 @@ const HIT = {
   foot: 20,
 };
 
+let player1;
+let player2;
+
 class Game {
-  enemyAttack = () => {
-    const hit = ATTACK[getRandom(3) - 1];
-    const defence = ATTACK[getRandom(3) - 1];
-
-    return {
-      value: getRandom(HIT[hit]),
-      hit,
-      defence,
-    };
-  };
-
   playerAttack = () => {
     for (let item of $formFight) {
       if (item.checked && item.name === "hit") {
@@ -41,10 +33,7 @@ class Game {
     return attack;
   };
 
-  fight = (player1, player2) => {
-    const enemy = this.enemyAttack();
-    const player = this.playerAttack();
-
+  fight = (player, enemy) => {
     if (player.hit != enemy.defence) {
       player2.changeHP(player.value);
       player2.renderHP();
@@ -62,6 +51,11 @@ class Game {
     }
   };
 
+  getMyPlayer = async () => {
+    const player = JSON.parse(localStorage.getItem("player1"));
+    return player;
+  };
+
   checkWinner = () => {
     if (player1.hp === 0 || player2.hp === 0) {
       createReloadButton();
@@ -70,11 +64,9 @@ class Game {
     if (player1.hp === 0 && player1.hp < player2.hp) {
       $arenas.appendChild(this.playerWins(player2.name));
       generateLogs("end", player2, player1);
-      document.getElementById("player2img").src = "./assets/kitana-win.gif";
     } else if (player2.hp === 0 && player2.hp < player1.hp) {
       $arenas.appendChild(this.playerWins(player1.name));
       generateLogs("end", player1, player2);
-      document.getElementById("player1img").src = "./assets/scorpion-win.gif";
     } else if (player1.hp === 0 && player2.hp === 0) {
       $arenas.appendChild(this.playerWins());
       generateLogs("draw");
@@ -89,13 +81,65 @@ class Game {
     return $winTitle;
   };
 
-  start = () => {
+  getPlayers = async () => {
+    const body = fetch(
+      "https://reactmarathon-api.herokuapp.com/api/mk/players"
+    ).then((res) => res.json());
+    return body;
+  };
+
+  getComputerPlayer = async () => {
+    const body = fetch(
+      "https://reactmarathon-api.herokuapp.com/api/mk/player/choose"
+    ).then((res) => res.json());
+    console.log(body);
+    return body;
+  };
+
+  getEnemy = async (player) => {
+    const r = fetch(
+      "http://reactmarathon-api.herokuapp.com/api/mk/player/fight",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          hit: player.hit,
+          defence: player.defence,
+        }),
+      }
+    ).then((res) => res.json());
+    console.log(444, r);
+    return r;
+  };
+
+  start = async () => {
+    const players = await this.getPlayers();
+
+    //const p1 = players[getRandom(players.length - 1)];
+    const p2 = await this.getComputerPlayer();
+    const p1 = await this.getMyPlayer();
+
+    player1 = new Player({
+      ...p1,
+      player: 1,
+    });
+
+    player2 = new Player({
+      ...p2,
+      player: 2,
+    });
+
     $arenas.appendChild(player1.create());
     $arenas.appendChild(player2.create());
     generateLogs("start", player1, player2);
-    $formFight.addEventListener("submit", (e) => {
+
+    $formFight.addEventListener("submit", async (e) => {
       e.preventDefault();
-      this.fight(player1, player2);
+
+      const player = this.playerAttack();
+      const fightValues = await this.getEnemy(player);
+
+      this.fight(fightValues.player1, fightValues.player2);
+
       this.checkWinner();
     });
   };

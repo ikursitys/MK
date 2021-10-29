@@ -54,20 +54,4 @@ class Player {
   };
 }
 
-const player1 = new Player({
-  player: 1,
-  name: "Scorpion",
-  hp: 100,
-  img: "http://reactmarathon-api.herokuapp.com/assets/scorpion.gif",
-  weapon: "Kunai",
-});
-
-const player2 = new Player({
-  player: 2,
-  name: "Kitana",
-  hp: 100,
-  img: "http://reactmarathon-api.herokuapp.com/assets/kitana.gif",
-  weapon: "Steel Fans",
-});
-
-export { player1, player2 };
+export { Player };
