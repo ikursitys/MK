@@ -64,7 +64,7 @@ async function init() {
       el.classList.add("active");
 
       setTimeout(() => {
-        window.open("./arena.html");
+        window.location = "./arena.html";
         // TODO: Здесь должен быть код который перенаправит вас на ваше игровое поле...
         //  Пример использования: window.location.pathname = 'arenas.html';
       }, 1000);

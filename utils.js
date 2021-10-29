@@ -22,7 +22,7 @@ const createReloadButton = () => {
   $reloadWrap.appendChild($reloadButton);
   $arenas.appendChild($reloadWrap);
   $reloadButton.addEventListener("click", function () {
-    window.open("./index.html");
+    window.location = "./index.html";
   });
 };
 
