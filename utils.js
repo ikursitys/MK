@@ -1,3 +1,5 @@
+import { Player } from "./player.js";
+
 const $arenas = document.querySelector("div.arenas");
 const $formFight = document.querySelector(".control");
 
@@ -19,9 +21,8 @@ const createReloadButton = () => {
   $reloadButton.innerText = "restart";
   $reloadWrap.appendChild($reloadButton);
   $arenas.appendChild($reloadWrap);
-
   $reloadButton.addEventListener("click", function () {
-    window.location.reload();
+    window.open("./index.html");
   });
 };
 
